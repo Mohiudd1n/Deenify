@@ -1,10 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:sidebarx/sidebarx.dart';
+import './pages/loginpage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:deenify/pages/homepage.dart'; // Adjust the import path as needed
 
-void main() {
-  runApp(SidebarXExampleApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'SidebarX Example',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+        primaryColor: primaryColor,
+        canvasColor: canvasColor,
+        scaffoldBackgroundColor: scaffoldBackgroundColor,
+        textTheme: const TextTheme(
+        headlineSmall: TextStyle(
+        color: Colors.white,
+        fontSize: 46,
+        fontWeight: FontWeight.w800,
+    ),
+    ),
+    appBarTheme: AppBarTheme(
+    backgroundColor: canvasColor,
+    titleTextStyle: const TextStyle(
+    color: Colors.white,
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    ),
+    iconTheme: const IconThemeData(
+    color: Colors.white,
+    ),
+    ),
+    ),
+    home: loginpage(),
+    );
+  }
+
 }
 
 class SidebarXExampleApp extends StatelessWidget {
@@ -15,33 +58,7 @@ class SidebarXExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SidebarX Example',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: primaryColor,
-        canvasColor: canvasColor,
-        scaffoldBackgroundColor: scaffoldBackgroundColor,
-        textTheme: const TextTheme(
-          headlineSmall: TextStyle(
-            color: Colors.white,
-            fontSize: 46,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: canvasColor,
-          titleTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-          iconTheme: const IconThemeData(
-            color: Colors.white,
-          ),
-        ),
-      ),
-      home: Builder(
+     return Builder(
         builder: (context) {
           final isSmallScreen = MediaQuery.of(context).size.width < 600;
           return Scaffold(
@@ -76,7 +93,6 @@ class SidebarXExampleApp extends StatelessWidget {
             ),
           );
         },
-      ),
     );
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "590732800735",
+    "project_id": "deenify-0001",
+    "storage_bucket": "deenify-0001.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590732800735:android:9cf3469beaf7bbc5452f6a",
+        "android_client_info": {
+          "package_name": "com.example.Deenify.deenify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfyZw7-ISQJax4OdZEmkfno6bzsh60Mxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
