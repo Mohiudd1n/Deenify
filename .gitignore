@@ -11,7 +11,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-
+app/google-services.json
+flutter_dotenv
 # IntelliJ related
 *.iml
 *.ipr
