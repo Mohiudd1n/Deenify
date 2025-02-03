@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:slide_to_act/slide_to_act.dart';

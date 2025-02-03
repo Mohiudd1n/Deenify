@@ -1,8 +1,11 @@
+import 'dart:math';
+
+import 'package:deenify/pages/signuppage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sidebarx/sidebarx.dart';
 import './pages/loginpage.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'firebase_options.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:deenify/pages/homepage.dart'; // Adjust the import path as needed
@@ -22,77 +25,89 @@ class MyApp extends StatelessWidget{
         title: 'SidebarX Example',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-        primaryColor: primaryColor,
-        canvasColor: canvasColor,
-        scaffoldBackgroundColor: scaffoldBackgroundColor,
-        textTheme: const TextTheme(
-        headlineSmall: TextStyle(
-        color: Colors.white,
-        fontSize: 46,
-        fontWeight: FontWeight.w800,
-    ),
-    ),
-    appBarTheme: AppBarTheme(
-    backgroundColor: canvasColor,
-    titleTextStyle: const TextStyle(
-    color: Colors.white,
-    fontSize: 20,
-    fontWeight: FontWeight.bold,
-    ),
-    iconTheme: const IconThemeData(
-    color: Colors.white,
-    ),
-    ),
-    ),
-    home: loginpage(),
+          primaryColor: primaryColor,
+          canvasColor: canvasColor,
+          scaffoldBackgroundColor: scaffoldBackgroundColor,
+          textTheme: const TextTheme(
+            headlineSmall: TextStyle(
+              color: Colors.white,
+              fontSize: 46,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: canvasColor,
+            titleTextStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            iconTheme: const IconThemeData(
+              color: Colors.white,
+            ),
+          ),
+        ),
+        home: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot){
+              if(snapshot.connectionState == ConnectionState.waiting){
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if(snapshot.data != null){
+                return home();
+              }
+              return loginpage();
+            }
+        )
     );
   }
 
 }
 
-class SidebarXExampleApp extends StatelessWidget {
-  SidebarXExampleApp({Key? key}) : super(key: key);
+class home extends StatelessWidget {
+  home({Key? key}) : super(key: key);
 
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
   final _key = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-     return Builder(
-        builder: (context) {
-          final isSmallScreen = MediaQuery.of(context).size.width < 600;
-          return Scaffold(
-            key: _key,
-            appBar: isSmallScreen
-                ? AppBar(
-              backgroundColor: canvasColor,
-              title: Text(
-                _getTitleByIndex(_controller.selectedIndex),
-                style: const TextStyle(color: Colors.white),
-              ),
-              leading: IconButton(
-                onPressed: () {
-                  _key.currentState?.openDrawer();
-                },
-                icon: const Icon(Icons.menu, color: Colors.white),
-              ),
-            )
-                : null,
-            drawer: ExampleSidebarX(controller: _controller),
-            body: Row(
-              children: [
-                if (!isSmallScreen) ExampleSidebarX(controller: _controller),
-                Expanded(
-                  child: Center(
-                    child: _ScreensExample(
-                      controller: _controller,
-                    ),
+    return Builder(
+      builder: (context) {
+        final isSmallScreen = MediaQuery.of(context).size.width < 600;
+        return Scaffold(
+          key: _key,
+          appBar: isSmallScreen
+              ? AppBar(
+            backgroundColor: canvasColor,
+            title: Text(
+              _getTitleByIndex(_controller.selectedIndex),
+              style: const TextStyle(color: Colors.white),
+            ),
+            leading: IconButton(
+              onPressed: () {
+                _key.currentState?.openDrawer();
+              },
+              icon: const Icon(Icons.menu, color: Colors.white),
+            ),
+          )
+              : null,
+          drawer: ExampleSidebarX(controller: _controller),
+          body: Row(
+            children: [
+              if (!isSmallScreen) ExampleSidebarX(controller: _controller),
+              Expanded(
+                child: Center(
+                  child: _ScreensExample(
+                    controller: _controller,
                   ),
                 ),
-              ],
-            ),
-          );
-        },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -193,8 +208,8 @@ class ExampleSidebarX extends StatelessWidget {
             onTap: () => _showDisabledAlert(context),
           ),
           const SidebarXItem(
-            iconWidget: FlutterLogo(size: 20),
-            label: 'Friends',
+            icon: Icons.logout,
+            label: 'Logout',
           ),
         ],
       ),
@@ -233,6 +248,9 @@ class _ScreensExample extends StatelessWidget {
           switch (controller.selectedIndex) {
             case 0:
               return const homepage();
+          case 4:
+            FirebaseAuth.instance.signOut();
+            return Text("Ok");
             default:
               return Text(
                 pageTitle,

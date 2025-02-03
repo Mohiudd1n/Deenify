@@ -1,6 +1,6 @@
 import 'package:deenify/screens/prayerscreen.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:deenify/main.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_scrolling_fab_animated/flutter_scrolling_fab_animated.dart';
 import '../widgets/listchild.dart'; // Adjust the import path as needed

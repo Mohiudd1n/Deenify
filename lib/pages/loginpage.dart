@@ -28,7 +28,7 @@ class loginpage extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => SidebarXExampleApp(),
+            builder: (context) => home(),
           ),
         );
       }
