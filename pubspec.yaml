@@ -32,13 +32,15 @@ dependencies:
     sdk: flutter
   sidebarx: "0.17.1"
   slide_to_act: "2.0.2"
+  cloud_firestore: ^5.6.2
   flutter_staggered_animations: "1.1.1"
   flutter_scrolling_fab_animated: "0.1.5"
   intl: "0.20.2"
   flutter_islamic_icons: "1.0.2"
   rounded_loading_button_plus: "3.0.1"
-  firebase_core: "3.10.1"
-  firebase_auth: "5.4.1"
+  firebase_performance_platform_interface: ^0.1.5+1
+  firebase_core: ^3.10.1
+  firebase_auth: ^5.4.1
   google_fonts: "6.2.1"
 
   # The following adds the Cupertino Icons font to your application.

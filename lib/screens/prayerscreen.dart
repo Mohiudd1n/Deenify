@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:slide_to_act/slide_to_act.dart';
@@ -24,22 +25,35 @@ class CalendarButtonScreen extends StatefulWidget {
 }
 
 class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
+  late DateTime? pickeddate;
   DateTime? _selectedDate;
   final RoundedLoadingButtonController _btnController = RoundedLoadingButtonController();
   late List<String> _buttonLabels = List.generate(5, (index) => 'Slide to confirm ${_Namazname(index)}');
   final List<bool> _buttonStates = List.generate(5, (index) => false); // Track button states
 
-  void _doSomething() async {
-    Timer(Duration(seconds: 3), () {
-      _btnController.success();
-    });
+  Future<void> uploadNamazStatus() async {
+    try{
+      final data = await FirebaseFirestore.instance.collection("namazrecords").add({
+        "Fajr": _buttonStates[0],
+        "Zohar": _buttonStates[1],
+        "Asr": _buttonStates[2],
+        "Maghrib": _buttonStates[3],
+        "Isha": _buttonStates[4],
+        "Date": pickeddate,
+      });
+      print(data);
+    } catch (e){
+      print(e);
+    }
   }
+
 
   String _Namazname(int index){
     const prayername = ["Fajr","Zohar","Asr","Maghrib","Isha"];
 
     return prayername[index];
   }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -50,24 +64,32 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
+        pickeddate = picked;
       });
     }
   }
 
-  void _onSubmit() {
+  void _doSomething() async {
+    Timer(Duration(seconds: 3), () async {
     if (_selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a date')),
       );
+
+      _btnController.error();
+
+      Timer(Duration(seconds: 2),(){
+        _btnController.reset();
+      });
       return;
     }
+    else{
 
-    // Submit logic here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}\nButtons: $_buttonLabels'),
-      ),
-    );
+    await uploadNamazStatus();
+    _btnController.success();
+
+    }
+    });
   }
 
   void _onSlideComplete(int index) {
