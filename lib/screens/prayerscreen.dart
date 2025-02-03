@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // For date formatting
@@ -40,6 +41,8 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
         "Maghrib": _buttonStates[3],
         "Isha": _buttonStates[4],
         "Date": pickeddate,
+        "Time": FieldValue.serverTimestamp(),
+        "user": FirebaseAuth.instance.currentUser!.uid,
       });
       print(data);
     } catch (e){
@@ -87,7 +90,7 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
 
     await uploadNamazStatus();
     _btnController.success();
-
+    Navigator.pop(context);
     }
     });
   }

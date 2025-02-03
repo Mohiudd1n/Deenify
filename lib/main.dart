@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:deenify/pages/signuppage.dart';
+import 'package:deenify/screens/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -47,22 +45,35 @@ class MyApp extends StatelessWidget{
             ),
           ),
         ),
-        home: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot){
-              if(snapshot.connectionState == ConnectionState.waiting){
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if(snapshot.data != null){
-                return home();
-              }
-              return loginpage();
-            }
-        )
+        initialRoute: '/',
+        routes: {
+          '/' : (context) => SplashScreen(),
+          '/home' : (context) => AuthWrapper(),
+        },
     );
   }
 
+}
+
+class AuthWrapper extends StatelessWidget {
+  AuthWrapper({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        if (snapshot.hasData && snapshot.data != null) {
+          return home(); // User is logged in, navigate to Home
+        }
+        return loginpage(); // User is not logged in, navigate to Login
+      },
+    );
+  }
 }
 
 class home extends StatelessWidget {
@@ -181,7 +192,7 @@ class ExampleSidebarX extends StatelessWidget {
             height: 100,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Image.asset('assets/images/avatar.png'),
+              child: Image.asset('lib/assets/images/avatar.png'),
             ),
           );
         },
