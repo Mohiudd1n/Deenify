@@ -264,7 +264,7 @@ class _ScreensExample extends StatelessWidget {
             case 1:
               return const tasbihpage();
             case 2:
-              return const analyticpage();
+              return const AnalyticPage();
           case 4:
             FirebaseAuth.instance.signOut();
             return Text("Ok");

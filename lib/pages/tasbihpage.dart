@@ -40,8 +40,8 @@ class tasbihpage extends StatelessWidget {
               itemCount: data.length,
               itemBuilder: (context, index) {
                 final item = data[index];
-                final dua = item['text'];
-                final count = item['number'];
+                final dua = item['dua'];
+                final count = item['count'];
                 final date = (item['date'] as Timestamp).toDate();
                 final formattedDate = DateFormat('dd-MM-yyyy').format(date);
 
@@ -247,8 +247,8 @@ class tasbihpage extends StatelessWidget {
                 final user = FirebaseAuth.instance.currentUser;
                 if (user != null) {
                   await FirebaseFirestore.instance.collection("DuaData").add({
-                    "text": _textController.text,
-                    "number": int.parse(_numberController.text),
+                    "dua": _textController.text,
+                    "count": int.parse(_numberController.text),
                     "date": _selectedDate,
                     "user": user.uid,
                   });

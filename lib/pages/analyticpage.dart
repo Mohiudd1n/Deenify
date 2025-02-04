@@ -1,60 +1,70 @@
+import 'package:deenify/pages/tasbihanalytics.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:intl/intl.dart';
+import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart'; // Add this package
+import '../widgets/listchild.dart';
 
-class analyticpage extends StatefulWidget {
-  const analyticpage({super.key});
+class AnalyticPage extends StatefulWidget {
+  const AnalyticPage({super.key});
 
   @override
   _AnalyticsPageState createState() => _AnalyticsPageState();
 }
 
-class _AnalyticsPageState extends State<analyticpage> {
+class _AnalyticsPageState extends State<AnalyticPage> {
+
+  static final ScrollController scrollController = ScrollController();
   DateTime? _startDate;
   DateTime? _endDate;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('تحليلات', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        backgroundColor: Colors.green[900],
-      ),
-      body: Container(
-        color: Colors.grey[900],
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Date Range Picker
-            Card(
-              color: Colors.grey[800],
-              child: ListTile(
-                leading: const Icon(Icons.calendar_today, color: Colors.green),
-                title: Text(
-                  _startDate == null || _endDate == null
-                      ? 'اختر نطاق التاريخ'
-                      : '${DateFormat('yyyy-MM-dd').format(_startDate!)} إلى ${DateFormat('yyyy-MM-dd').format(_endDate!)}',
-                  style: const TextStyle(color: Colors.white),
+      body: ContainedTabBarView(
+        tabs: [
+          Text("Namaz Tracker", style: TextStyle(color: Colors.white),),
+          Text("Tasbih Tracker", style: TextStyle(color: Colors.white),),
+        ],
+        views : [Container(
+          color: Colors.grey[900],
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Date Range Picker
+              Card(
+                color: Colors.grey[800],
+                child: ListTile(
+                  leading: const Icon(Icons.calendar_today, color: Colors.green),
+                  title: Text(
+                    _startDate == null || _endDate == null
+                        ? 'Select Date Range'
+                        : '${DateFormat('yyyy-MM-dd').format(_startDate!)} to ${DateFormat('yyyy-MM-dd').format(_endDate!)}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  trailing: const Icon(Icons.arrow_drop_down, color: Colors.green),
+                  onTap: _selectDateRange,
                 ),
-                trailing: const Icon(Icons.arrow_drop_down, color: Colors.green),
-                onTap: _selectDateRange,
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Tasbih Analytics
-            Expanded(
-              child: _buildTasbihAnalytics(),
-            ),
-
-            // Namaz Analytics
-            Expanded(
-              child: _buildNamazAnalytics(),
-            ),
-          ],
+              const SizedBox(height: 20),
+        
+              // Tasbih Analytics
+              // Expanded(
+              //   child: _buildTasbihAnalytics(),
+              // ),
+        
+              // Namaz Analytics
+              Expanded(
+                child: _buildNamazAnalytics(),
+              ),
+            ],
+          ),
         ),
+        tasbihanalytics(),
+        ]
       ),
     );
   }
@@ -68,12 +78,26 @@ class _AnalyticsPageState extends State<analyticpage> {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.green,
-              onPrimary: Colors.white,
-              surface: Colors.grey,
-              onSurface: Colors.white,
+              primary: Colors.green, // Primary color for selected range
+              onPrimary: Colors.white, // Text color on primary
+              surface: Colors.grey, // Background color of the calendar
+              onSurface: Colors.white, // Text color on the surface
             ),
-            dialogBackgroundColor: Colors.grey[900],
+            dialogBackgroundColor: Colors.grey[900], // Background color of the dialog
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(color: Colors.white), // Text color for input fields
+              bodyMedium: TextStyle(color: Colors.white), // Text color for input fields
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.black, // Background color of the input fields
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              hintStyle: TextStyle(color: Colors.grey[400]), // Hint text color
+              labelStyle: TextStyle(color: Colors.white), // Label text color
+            ),
           ),
           child: child!,
         );
@@ -106,7 +130,7 @@ class _AnalyticsPageState extends State<analyticpage> {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(
             child: Text(
-              'لا توجد بيانات Tasbih متاحة',
+              'No Tasbih data available',
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           );
@@ -118,7 +142,7 @@ class _AnalyticsPageState extends State<analyticpage> {
           itemCount: data.length,
           itemBuilder: (context, index) {
             final item = data[index];
-            final text = item['text'];
+            final text = item['dua'];
             final count = item['count'];
 
             return Card(
@@ -130,7 +154,7 @@ class _AnalyticsPageState extends State<analyticpage> {
                   style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
                 subtitle: Text(
-                  'العدد: $count',
+                  'Count: $count',
                   style: const TextStyle(color: Colors.green),
                 ),
               ),
@@ -145,7 +169,7 @@ class _AnalyticsPageState extends State<analyticpage> {
     if (_startDate == null || _endDate == null) {
       return const Center(
         child: Text(
-          'الرجاء اختيار نطاق التاريخ',
+          'Please select a date range',
           style: TextStyle(color: Colors.white, fontSize: 18),
         ),
       );
@@ -154,7 +178,7 @@ class _AnalyticsPageState extends State<analyticpage> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('namazrecords')
-          .where('user', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+          .where('user', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .where('Date', isGreaterThanOrEqualTo: _startDate)
           .where('Date', isLessThanOrEqualTo: _endDate)
           .snapshots(),
@@ -170,7 +194,7 @@ class _AnalyticsPageState extends State<analyticpage> {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(
             child: Text(
-              'لا توجد بيانات Namaz متاحة',
+              'No Namaz data available',
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           );
@@ -194,16 +218,69 @@ class _AnalyticsPageState extends State<analyticpage> {
             missedDays++;
           }
         }
+        return ListView.builder(
+          controller: scrollController,
+          padding: const EdgeInsets.all(16),
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (BuildContext context, int index) {
+            final doc = snapshot.data!.docs[index];
+            final date = DateFormat("dd-MM-yyyy").format((doc["Date"] as Timestamp).toDate());
 
+            return AnimationConfiguration.staggeredList(
+              position: index,
+              duration: const Duration(milliseconds: 375),
+              child: SlideAnimation(
+                verticalOffset: 50.0,
+                child: FadeInAnimation(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: ExpansionTileCard(
+                      elevation: 2,
+                      initialPadding: EdgeInsets.zero,
+                      baseColor: Colors.white,
+                      expandedColor: Colors.white,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            date,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Listchild(
+                            prayerStatus: [
+                              doc["Fajr"],
+                              doc["Zohar"],
+                              doc["Asr"],
+                              doc["Maghrib"],
+                              doc["Isha"],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
         return Column(
           children: [
             Text(
-              'أيام الصلاة: $prayedDays',
+              'Days Prayed: $prayedDays',
               style: const TextStyle(color: Colors.green, fontSize: 20),
             ),
             const SizedBox(height: 10),
             Text(
-              'الأيام الفائتة: $missedDays',
+              'Days Missed: $missedDays',
               style: const TextStyle(color: Colors.red, fontSize: 20),
             ),
           ],
