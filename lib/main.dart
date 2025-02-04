@@ -1,7 +1,10 @@
+import 'package:deenify/pages/analyticpage.dart';
 import 'package:deenify/screens/splashscreen.dart';
+import 'package:deenify/screens/tasbihdialog.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sidebarx/sidebarx.dart';
+import 'package:deenify/pages/tasbihpage.dart';
 import './pages/loginpage.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'firebase_options.dart';
@@ -20,7 +23,6 @@ class MyApp extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'SidebarX Example',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: primaryColor,
@@ -209,8 +211,8 @@ class ExampleSidebarX extends StatelessWidget {
             label: 'Tasbih',
           ),
           const SidebarXItem(
-            icon: FlutterIslamicIcons.solidMosque,
-            label: 'Qibla',
+            icon: Icons.analytics,
+            label: 'Analytics',
           ),
           SidebarXItem(
             icon: Icons.favorite,
@@ -259,6 +261,10 @@ class _ScreensExample extends StatelessWidget {
           switch (controller.selectedIndex) {
             case 0:
               return const homepage();
+            case 1:
+              return const tasbihpage();
+            case 2:
+              return const analyticpage();
           case 4:
             FirebaseAuth.instance.signOut();
             return Text("Ok");

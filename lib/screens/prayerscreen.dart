@@ -28,31 +28,51 @@ class CalendarButtonScreen extends StatefulWidget {
 class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
   late DateTime? pickeddate;
   DateTime? _selectedDate;
-  final RoundedLoadingButtonController _btnController = RoundedLoadingButtonController();
-  late List<String> _buttonLabels = List.generate(5, (index) => 'Slide to confirm ${_Namazname(index)}');
-  final List<bool> _buttonStates = List.generate(5, (index) => false); // Track button states
+  final RoundedLoadingButtonController _btnController =
+      RoundedLoadingButtonController();
+  late List<String> _buttonLabels =
+      List.generate(5, (index) => 'Slide to confirm ${_Namazname(index)}');
+  final List<bool> _buttonStates =
+      List.generate(5, (index) => false); // Track button states
 
   Future<void> uploadNamazStatus() async {
-    try{
-      final data = await FirebaseFirestore.instance.collection("namazrecords").add({
-        "Fajr": _buttonStates[0],
-        "Zohar": _buttonStates[1],
-        "Asr": _buttonStates[2],
-        "Maghrib": _buttonStates[3],
-        "Isha": _buttonStates[4],
-        "Date": pickeddate,
-        "Time": FieldValue.serverTimestamp(),
-        "user": FirebaseAuth.instance.currentUser!.uid,
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection("namazrecords")
+        .where("user", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .where("Date", isEqualTo: _selectedDate)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // A record already exists for this date and user
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('You have already added data for this date')),
+      );
+      _btnController.error();
+      Timer(const Duration(seconds: 2), () {
+        _btnController.reset();
       });
-      print(data);
-    } catch (e){
-      print(e);
+    } else {
+      try {
+        final data =
+            await FirebaseFirestore.instance.collection("namazrecords").add({
+          "Fajr": _buttonStates[0],
+          "Zohar": _buttonStates[1],
+          "Asr": _buttonStates[2],
+          "Maghrib": _buttonStates[3],
+          "Isha": _buttonStates[4],
+          "Date": pickeddate,
+          "user": FirebaseAuth.instance.currentUser!.uid,
+        });
+        print(data);
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
-
-  String _Namazname(int index){
-    const prayername = ["Fajr","Zohar","Asr","Maghrib","Isha"];
+  String _Namazname(int index) {
+    const prayername = ["Fajr", "Zohar", "Asr", "Maghrib", "Isha"];
 
     return prayername[index];
   }
@@ -63,6 +83,20 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.green,
+              onPrimary: Colors.white,
+              surface: Colors.black,
+              onSurface: Colors.white,
+            ),
+            dialogBackgroundColor: Colors.grey[900],
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -74,24 +108,22 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
 
   void _doSomething() async {
     Timer(Duration(seconds: 3), () async {
-    if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date')),
-      );
+      if (_selectedDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a date')),
+        );
 
-      _btnController.error();
+        _btnController.error();
 
-      Timer(Duration(seconds: 2),(){
-        _btnController.reset();
-      });
-      return;
-    }
-    else{
-
-    await uploadNamazStatus();
-    _btnController.success();
-    Navigator.pop(context);
-    }
+        Timer(Duration(seconds: 2), () {
+          _btnController.reset();
+        });
+        return;
+      } else {
+        await uploadNamazStatus();
+        _btnController.success();
+        Navigator.pop(context);
+      }
     });
   }
 
@@ -109,7 +141,6 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Prayers'),
@@ -157,43 +188,51 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            margin: const EdgeInsets.symmetric(vertical: 8), // Add margin between cards
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            // Add margin between cards
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: _buttonStates[index]
                                   ? InkWell(
-                                onTap: () => _resetButtonState(index), // Reset on tap
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade400, // Dark theme color for completed state
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Completed ${_Namazname(index)}',
-                                      style: const TextStyle(
-                                        fontSize: 18,
+                                      onTap: () => _resetButtonState(index),
+                                      // Reset on tap
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.shade400,
+                                          // Dark theme color for completed state
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            'Completed ${_Namazname(index)}',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : SlideAction(
+                                      text: _buttonLabels[index],
+                                      textStyle: const TextStyle(
+                                        fontSize: 14,
                                         color: Colors.white,
                                       ),
+                                      outerColor: Colors.red.shade300,
+                                      // Dark theme color
+                                      innerColor: Colors.white,
+                                      sliderButtonIcon: const Icon(
+                                          Icons.arrow_forward,
+                                          color: Colors.black),
+                                      onSubmit: () {
+                                        _onSlideComplete(index);
+                                        // Call the slide completion function
+                                      },
                                     ),
-                                  ),
-                                ),
-                              )
-                                  : SlideAction(
-                                text: _buttonLabels[index],
-                                textStyle: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                                outerColor: Colors.red.shade300, // Dark theme color
-                                innerColor: Colors.white,
-                                sliderButtonIcon: const Icon(Icons.arrow_forward, color: Colors.black),
-                                onSubmit: () {
-                                  _onSlideComplete(index);
-                                  // Call the slide completion function
-                                },
-                              ),
                             ),
                           ),
                         ),
@@ -207,6 +246,7 @@ class _CalendarButtonScreenState extends State<CalendarButtonScreen> {
 
             // Submit Button
             RoundedLoadingButton(
+              color: Colors.teal,
               child: Text('Submit!', style: TextStyle(color: Colors.white)),
               controller: _btnController,
               onPressed: _doSomething,

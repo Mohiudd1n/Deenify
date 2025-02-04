@@ -31,7 +31,7 @@ class homepage extends StatelessWidget {
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(child: Text("No Data Here :("));
+              return const Center(child: Text("No Data Here :(",style: TextStyle(color: Colors.white30, fontSize: 20),));
             }
 
             return ListView.builder(
@@ -41,7 +41,6 @@ class homepage extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 final doc = snapshot.data!.docs[index];
                 final date = DateFormat("dd-MM-yyyy").format((doc["Date"] as Timestamp).toDate());
-                final time = DateFormat("hh:mm a").format((doc["Time"] as Timestamp).toDate());
 
                 return AnimationConfiguration.staggeredList(
                   position: index,
@@ -61,13 +60,6 @@ class homepage extends StatelessWidget {
                             children: [
                               Text(
                                 date,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                time,
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
